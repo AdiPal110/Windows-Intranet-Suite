@@ -1,0 +1,8 @@
+cd "C:\Users\Aditya\Desktop\pyton try"
+
+py -3.13 -m PyInstaller --onefile --windowed --icon="qwenm.ico" --add-data "qwenm.ico;." Chatbot.py
+
+
+------------------------------------------------------------------------------------------------------
+root.iconbitmap(r'C:\Users\Aditya\Desktop\pyton try\clock.ico')
+self.root.iconbitmap(r'C:\Users\Aditya\Desktop\pyton try\qwenw.ico) 

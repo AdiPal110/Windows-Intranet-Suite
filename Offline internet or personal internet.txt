@@ -1,0 +1,24 @@
+	Intranet = Private Internet
+[What I Have = call & Message , Movies , Music , Translate , Wiki (simple Or moderate) , Youtube (Tiney Or Small), ChatGpt(tiny)
+
+For Hosting zim files  OR Wiki ( like wiki ,ifixit etc)		Kiwix Server	+ zim files
+For Hosting Media files OR Netflix like exprience (like movies, anime etc) 	Jellyfin	+ Movies or any video file
+For HOsting Comics (like online comics reader)		Komga (for hosting) + comics files (from https://mangakatana.com/)
+For Hosting Media file OR spotify like exprience (songs [mp3 any any music]) 	Navidrome	+ songs or any audio (just rember to update it metadata)
+For Translating service (eng to hindi ,hindi to eng)	LibraTranslate(libretranslate --port 8081)	+ if translate models not avilabe, it auto downloads
+For call and messages service ON (calling ,texting etc)	MiniSIPServer (windows) OR FusionPBX (linux) + linphone Or Microsip on every device
+For Cloud Storage Samba (for accessing and storing data)   Samba for server and FTP Compatable Explorer like cx file explore etc
+For instant Voice Chat Mumble (voip just instant)    Mumble Server + Mumble clint(mumla etc)
+For Chatbot AI or chatgpt like experience model= qwen2.5:0.5b (backend) and Msty UI (Frontend) and Open WebUI (lan Frontend)
+
+Technitium (for dns server) and Nginx (as an high-performance web server and traffic manager)
+------------------------------------------------------------------------------------------------------------------------------------
+Yacy for indexing (just search and everything avilable as link [like google])	(its an offline broser)
+
+====================================================================================================================================
+http://192.168.1.42:8096    (Media) Jellyfin
+http://192.168.1.42:8088    (Wiki)  Kiwix
+http://192.168.1.42:8001    (Translate)
+http://192.168.1.42:8091    (Music) Navidrome
+		    1111    (comics)
+		    1090    (chatbot)
