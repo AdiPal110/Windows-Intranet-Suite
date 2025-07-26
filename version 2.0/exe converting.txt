@@ -1,0 +1,16 @@
+cd "C:\Users\Aditya\Desktop\pyton try"
+
+py -3.13 -m PyInstaller --onefile --windowed --icon="qwenm.ico" --add-data "qwenm.ico;." "Chatbot.py"
+
+
+------------------------------------------------------------------------------------------------------
+root.iconbitmap(r'C:\Users\Aditya\Desktop\pyton try\file_host.ico')
+self.root.iconbitmap(r'B:\Game\LAN-Game-Hub\game.ico') 
+
+
+
+py -3.13 -m PyInstaller --onefile --windowed --icon="search.ico" ^
+--add-data "search.ico;." ^
+--add-data "icons;icons" ^
+--add-data "icons/pages;icons/pages" ^
+"status_server.py"

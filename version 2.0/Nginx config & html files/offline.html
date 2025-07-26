@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Unavailable</title>
+  <style>
+    :root {
+      --red: #d9534f;
+      --blue: #0275d8;
+      --bg: #f5f5f5;
+      --text: #333;
+      --link-bg: white;
+      --link-color: var(--blue);
+      --link-border: var(--blue);
+      --link-hover-bg: var(--blue);
+      --link-hover-color: white;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1e1e1e;
+      --text: #eee;
+      --link-bg: #2c2c2c;
+      --link-color: #66b3ff;
+      --link-border: #66b3ff;
+      --link-hover-bg: #66b3ff;
+      --link-hover-color: #1e1e1e;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      padding: 40px 20px;
+      margin: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: var(--red);
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .services {
+      margin-top: 20px;
+    }
+
+    .services h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .services a {
+      display: block;
+      margin: 10px auto;
+      padding: 12px 18px;
+      width: 90%;
+      max-width: 320px;
+      background: var(--link-bg);
+      color: var(--link-color);
+      border: 2px solid var(--link-border);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .services a:hover {
+      background: var(--link-hover-bg);
+      color: var(--link-hover-color);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 1.2rem;
+      background: transparent;
+      border: 2px solid var(--link-border);
+      color: var(--link-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--link-hover-bg);
+      color: var(--link-hover-color);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 80px;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      .services a {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+  <h1>🚧 Service Temporarily Offline</h1>
+  <p>This service is currently unavailable. Please try again later.</p>
+
+  <div class="services">
+    <h2>Try Other Services:</h2>
+    <a href="http://kiwix.lan">📚 Kiwix</a>
+    <a href="http://jellyfin.lan">🎬 Jellyfin</a>
+    <a href="http://translate.lan">🌐 Translate</a>
+    <a href="http://dumbot.lan">🤖 Chatbot</a>
+    <a href="http://navidrome.lan">🎵 Navidrome</a>
+    <a href="http://komga.lan">📖 Komga</a>
+    <a href="http://clock.lan">⏰ Clock</a>
+    <a href="http://ftp.lan">💾 Storage</a>
+    <a href="http://games.lan">🎮 Games</a>
+  </div>
+
+  <script>
+    // DARK MODE TOGGLE
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+    }
+
+    // LOAD USER'S LAST THEME OR PREFER DARK SYSTEM
+    (function () {
+      const saved = localStorage.getItem("theme");
+      const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", saved || system);
+    })();
+
+    // Fix focus stuck on mobile
+    window.addEventListener("pageshow", () => {
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
+    });
+
+    document.querySelectorAll(".services a").forEach(link => {
+      link.addEventListener("touchend", () => {
+        link.blur();
+      });
+    });
+  </script>
+<footer style="text-align: left; font-size: 0.85em; color: #888; margin-top: 40px; padding-left: 20px;">
+    <a href="about.html" style="text-decoration: none; color: #888;">About</a>
+</footer>
+
+</html>

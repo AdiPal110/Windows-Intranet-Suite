@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - Windows Intranet Suit</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #1e1e1e;
+      --card-color: #f4f4f4;
+      --border-color: #cccccc;
+      --link-color: #0077cc;
+    }
+
+    body.dark {
+      --bg-color: #1e1e1e;
+      --text-color: #eaeaea;
+      --card-color: #2a2a2a;
+      --border-color: #444444;
+      --link-color: #66ccff;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 1rem;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: var(--card-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+    }
+
+    h1, h2, h3 {
+      color: var(--text-color);
+      margin-top: 1.25em;
+    }
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--border-color);
+      padding-left: 15px;
+      margin: 1em 0;
+      background-color: rgba(0, 0, 0, 0.03);
+      font-style: italic;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    #toggle-theme {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      padding: 6px 10px;
+      font-size: 18px;
+      background: none;
+      border: 1px solid var(--text-color);
+      border-radius: 6px;
+      color: var(--text-color);
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      #toggle-theme {
+        font-size: 16px;
+        padding: 5px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<button id="toggle-theme" title="Toggle Theme">🌔</button>
+
+<div class="container">
+  <h1>🖥️ Windows Intranet Suit</h1>
+  <p><em>A LAN-First Offline Cloud Built by a Man and a Bot</em></p>
+
+  <hr>
+
+  <h2>📖 Origin Story</h2>
+  <p>This project began with a spark — a YouTube video showing the Kiwix app and its offline capabilities. That moment revealed something powerful:</p>
+  <blockquote>“LAN can be more than just a network — it can be your own internet.”</blockquote>
+  <p>At the heart of this project was <strong>curiosity</strong>, fueled by a childhood memory — a 12th-grade computer teacher introducing Python. Years later, that small seed grew into something remarkable.</p>
+
+  <h2>🤝 Built by Two Minds</h2>
+  <ul>
+    <li>🧠 <strong>A Man</strong> — who had the vision, ideas, and persistence</li>
+    <li>⚙️ <strong>A Bot</strong> — who turned those ideas into code and structure</li>
+  </ul>
+  <p>Together, they built a modular, efficient, self-hosted system — <strong>entirely offline</strong>, with full UI control, smart fallback pages, themed interfaces, and domain-based routing.</p>
+
+  <h2>🧰 What It Includes</h2>
+  <ul>
+    <li><strong>Offline Encyclopedia</strong> (Kiwix)</li>
+    <li><strong>Media Streaming</strong> (Jellyfin)</li>
+    <li><strong>Music Library</strong> (Navidrome)</li>
+    <li><strong>Comics Reader</strong> (Komga)</li>
+    <li><strong>Offline Translator</strong> (LibreTranslate)</li>
+    <li><strong>Local Chatbot</strong> (Qwen via Ollama)</li>
+    <li><strong>Custom Dashboards</strong> (.exe with GUI)</li>
+    <li><strong>LAN Routing</strong> (NGINX + Technitium)</li>
+    <li><strong>Fallback Page</strong> (<code>offline.html</code>)</li>
+    <li><strong>An HomePage</strong> (LanScout)</li>
+    <li><strong>HTTP Games</strong> (Games Server With GUI)</li>
+  </ul>
+  <p>Each service has its own launcher, logs, icon, and LAN domain.</p>
+
+  <h2>🌐 Why It Matters</h2>
+  <p>This system runs on an old i3 processor with 12GB RAM. No cloud. No external dependencies.</p>
+  <p>It's proof that <strong>you don’t need modern hardware to build a modern network</strong>. All you need is an idea — and a tool that listens.</p>
+
+  <h2>🧩 The Name: <em>Windows Intranet Suit</em></h2>
+  <p>It runs on Windows. It turns your PC into a fully offline, modular, personal cloud. And like a suit, it’s tailored to fit exactly what you need — nothing more, nothing less.</p>
+
+  <blockquote><strong>“Most people use the internet. A few build their own.”</strong><br>— A Man and a Bot, July 2025</blockquote>
+</div>
+
+<script>
+  const toggleBtn = document.getElementById("toggle-theme");
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    document.body.classList.add("dark");
+    toggleBtn.textContent = "🌒";
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    toggleBtn.textContent = isDark ? "🌒" : "🌔";
+    try {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    } catch (e) {
+      // fallback safe
+    }
+  });
+</script>
+
+</body>
+</html>
