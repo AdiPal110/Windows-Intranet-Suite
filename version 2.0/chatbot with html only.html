@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DummerBot v2.2</title>
+  <style>
+    :root {
+      --primary: #00ff88;
+      --primary-glow: #00ff8840;
+      --secondary: #9cff9c;
+      --accent: #ff6b9d;
+      --background: #0a0a0a;
+      --surface: #101010;
+      --surface-light: #1a1a1a;
+      --text: #e8f7d4;
+      --text-secondary: #aaf7a3;
+      --danger: #ff5555;
+      --warning: #ffaa00;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: #0a0a0a;
+      color: var(--text);
+      font-family: "Courier New", monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      min-height: 100vh;
+    }
+
+    .compact-bot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      background: var(--surface);
+      border: 1px solid var(--primary);
+      border-radius: 15px;
+      box-shadow: 0 0 20px var(--primary-glow), 0 0 40px var(--primary-glow);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .compact-bot.minimized {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--primary);
+      box-shadow: 0 0 20px var(--primary);
+    }
+
+    .minimized-content {
+      display: none;
+      font-size: 24px;
+    }
+
+    .compact-bot.minimized .minimized-content {
+      display: block;
+    }
+
+    .compact-bot.minimized .bot-content {
+      display: none;
+    }
+
+    .bot-header {
+      background: linear-gradient(135deg, #151515, #0a0a0a);
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--primary-glow);
+      font-size: 0.8rem;
+    }
+
+    .bot-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mood-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mood-bar {
+      width: 60px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .mood-level {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger), var(--warning), var(--primary));
+      width: 50%;
+      transition: width 0.3s ease;
+    }
+
+    .minimize-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 5px;
+      border-radius: 5px;
+      transition: all 0.2s;
+    }
+
+    .minimize-btn:hover {
+      background: var(--primary-glow);
+    }
+
+    .response-area {
+      height: 70px;
+      padding: 12px 15px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      border-bottom: 1px solid #1a1a1a;
+      background: linear-gradient(to bottom, #0f0f0f, #151515);
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px;
+      gap: 8px;
+      background: #151515;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      border-radius: 20px;
+      border: 1px solid var(--primary-glow);
+      background: var(--surface);
+      color: var(--text);
+      font-family: "Courier New", monospace;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    #user-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    #send-btn {
+      padding: 8px 15px;
+      border-radius: 20px;
+      border: none;
+      background: var(--primary);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: "Courier New", monospace;
+      transition: all 0.3s;
+    }
+
+    #send-btn:hover {
+      background: var(--secondary);
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 10px;
+      background: #151515;
+    }
+
+    .action-btn {
+      padding: 6px 8px;
+      background: linear-gradient(135deg, var(--surface), #1a1a1a);
+      border: 1px solid var(--primary-glow);
+      border-radius: 12px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Animation for mood changes */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: pulse 0.5s ease;
+    }
+
+    /* Scrollbar styling */
+    .response-area::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .response-area::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+
+    .response-area::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="compact-bot">
+    <div class="minimized-content">🤖</div>
+    
+    <div class="bot-content">
+      <div class="bot-header">
+        <div class="bot-title">
+          <span>DummerBot v2.2</span>
+        </div>
+        <div class="mood-indicator">
+          <span id="mood-text">😐</span>
+          <div class="mood-bar">
+            <div class="mood-level" id="mood-level"></div>
+          </div>
+          <span id="cookie-count">🍪0</span>
+          <button class="minimize-btn" id="minimize-btn">−</button>
+        </div>
+      </div>
+      
+      <div class="response-area" id="response-area">
+        Hi, I'm DummerBot v2.2 — I overheat emotions and undercook logic.
+      </div>
+      
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="Type message..." autocomplete="off">
+        <button id="send-btn">Send</button>
+      </div>
+      
+      <div class="quick-actions">
+        <div class="action-btn" data-command="How are you?">How are you?</div>
+        <div class="action-btn" data-command="Tell me a joke">Joke</div>
+        <div class="action-btn" data-command="Give cookie">Give 🍪</div>
+        <div class="action-btn" data-command="Take cookie">Take 🍪</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Ultra-Advanced DummerBot with Enhanced Personality & Jokes
+    class DummerBot {
+      constructor() {
+        this.memory = {
+          userName: null,
+          userPreferences: {},
+          conversationPatterns: {},
+          emotionalHistory: [],
+          interactionCount: 0,
+          topics: {},
+          introShown: false
+        };
+        this.mood = 5; // Range: 0-10
+        this.cookies = 0;
+        this.learningRate = 0.15;
+        this.personalityTraits = {
+          friendliness: 0.7,
+          humor: 0.6,
+          curiosity: 0.5,
+          patience: 0.8,
+          sarcasm: 0.3
+        };
+        
+        // Neural network simulation weights
+        this.weights = {
+          positive: 0.7,
+          negative: 0.3,
+          question: 0.5,
+          command: 0.8,
+          emotional: 0.6
+        };
+        
+        // Introduction lines
+        this.introductions = [
+          "I'm DummerBot v2.2 - smarter than toaster but dummer than frog!",
+          "I'm DummerBot v2.2 - Smarter than a toaster, dumber than whatever that frog's plotting.",
+          "Hi, I'm DummerBot v2.2 — I overheat emotions and undercook logic.",
+          "Hi, I'm DummerBot v2.2 — built to feel too much and think too little."
+        ];
+        
+        // joke library
+        this.jokes = [
+          "Why did the cookie go to the doctor? Because it felt crumbly!",
+          "What do you call a fake noodle? An impasta!",
+          "Why don't scientists trust atoms? Because they make up everything!",
+          "What's a robot's favorite snack? Computer chips!",
+          "Why was the math book sad? It had too many problems!",
+          "What do you call a bear with no teeth? A gummy bear!",
+          "Why did the scarecrow win an award? He was outstanding in his field!",
+          "What do you call a sleeping bull? A bulldozer!",
+          "Why did the coffee file a police report? It got mugged!",
+          "What's a vampire's favorite fruit? A blood orange!",
+          "Why don't skeletons fight each other? They don't have the guts!",
+          "What do you call a fish wearing a crown? A king fish!",
+          "Why did the bicycle fall over? Because it was two tired!",
+          "What do you call a factory that makes good products? A satisfactory!",
+          "Why did the tomato turn red? Because it saw the salad dressing!",
+          "What do you call a snowman with a suntan? A puddle!",
+          "Why don't eggs tell jokes? They'd crack each other up!",
+          "What do you call a dinosaur that crashes his car? Tyrannosaurus Wrecks!",
+          "Why did the golfer bring two pairs of pants? In case he got a hole in one!",
+          "What do you call a bear caught in the rain? A drizzly bear!",
+          "Why did the cookie go to the gym? To get a little crunchier!",
+          "What's a robot's favorite type of music? Heavy metal!",
+          "Why did the computer go to the doctor? It had a virus!",
+          "What do you call a computer that sings? A Dell!",
+          "Why was the computer cold? It left its Windows open!",
+          "What do you call a computer superhero? A screen saver!",
+          "Why did the smartphone go to therapy? It had too many issues!",
+          "What's a computer's favorite beat? An algorithm!",
+          "Why did the robot go on a diet? It had too many bytes!",
+          "What do you call a computer that tells jokes? A laughing stock!",
+          "Why don't computers take naps? They don't want to catch a virus!",
+          "What's a computer's favorite snack? Microchips!",
+          "Why was the computer so good at baseball? It had a great hard drive!",
+          "What do you call a computer that can play the piano? A synthesizer!",
+          "Why did the computer keep freezing? It left its snow boots on!",
+          "What's a computer's favorite place in New York? The motherboard!",
+          "Why did the computer cross the road? To get to the other website!",
+          "What do you call a computer that's been arrested? Apprehended!",
+          "Why was the computer so smart? It had a lot of cache!",
+          "What do you call a sleeping computer? A laptop!",
+          "Why did the cookie go to the party alone? Because it was a smart cookie!",
+          "What do you call a cookie that can fix computers? A tech support chip!",
+          "Why did the cookie apply for a job? It wanted to be a fortune cookie!",
+          "What's a cookie's favorite game? Hide and seek - because they're always getting crumbled!",
+          "Why did the cookie go to school? To get a little smarter!",
+          "What do you call a cookie that's a detective? Sherlock Crumbs!",
+          "Why was the cookie so good at math? It knew its multiplication chips!",
+          "What do you call a cookie that's a superhero? The Crumbler!",
+          "Why did the cookie go to space? To visit the Milky Way!",
+          "What's a cookie's favorite type of music? Rock and roll - because it rocks and it rolls!"
+        ];
+        
+        this.facts = [
+          "Cookies were originally made to test oven temperature before baking cakes.",
+          "The first computer cookie was invented in 1994 by Lou Montulli of Netscape.",
+          "The word 'robot' comes from the Czech word 'robota', meaning forced labor.",
+          "The first website is still online: http://info.cern.ch",
+          "The smell of chocolate increases theta brain waves, which triggers relaxation.",
+          "The world's first computer programmer was a woman named Ada Lovelace.",
+          "The average person spends about 6 months of their lifetime waiting for red lights to turn green.",
+          "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible."
+        ];
+        
+        this.init();
+      }
+      
+      init() {
+        this.updateUI();
+        this.setupEventListeners();
+        
+        // Show a random introduction
+        const randomIntro = this.introductions[Math.floor(Math.random() * this.introductions.length)];
+        this.addResponse(randomIntro);
+        this.memory.introShown = true;
+      }
+      
+      setupEventListeners() {
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const actionBtns = document.querySelectorAll('.action-btn');
+        const minimizeBtn = document.getElementById('minimize-btn');
+        const botContainer = document.querySelector('.compact-bot');
+        
+        sendBtn.addEventListener('click', () => {
+          this.handleUserInput(userInput.value);
+          userInput.value = '';
+        });
+        
+        userInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.handleUserInput(userInput.value);
+            userInput.value = '';
+          }
+        });
+        
+        actionBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.handleUserInput(btn.getAttribute('data-command'));
+          });
+        });
+        
+        // Minimize functionality
+        minimizeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          botContainer.classList.add('minimized');
+        });
+        
+        botContainer.addEventListener('click', (e) => {
+          if (botContainer.classList.contains('minimized')) {
+            botContainer.classList.remove('minimized');
+          }
+        });
+      }
+      
+      handleUserInput(input) {
+        if (!input.trim()) return;
+        
+        // Show typing indicator
+        this.showTyping();
+        
+        // Process after a short delay to simulate thinking
+        setTimeout(() => {
+          this.processInput(input);
+        }, 200 + Math.random() * 200);
+      }
+      
+      processInput(input) {
+        const lowerInput = input.toLowerCase().trim();
+        let response = "";
+        
+        // Update interaction count
+        this.memory.interactionCount++;
+        
+        // Learn from this interaction
+        this.learnFromInput(lowerInput);
+        
+        // Neural network simulation to determine response type
+        const responseType = this.neuralResponse(lowerInput);
+        
+        // 💾 Learn user's name
+        if (lowerInput.startsWith("my name is ")) {
+          const name = lowerInput.split("my name is ")[1].trim().split(" ")[0];
+          this.memory.userName = name.charAt(0).toUpperCase() + name.slice(1);
+          response = `Nice to meet you, ${this.memory.userName}! I'll remember that!`;
+          this.adjustMood(1);
+        }
+        
+        // 💬 Greeting
+        else if (/(hi|hello|hey|yo|greetings)\b/.test(lowerInput)) {
+          if (this.memory.userName) {
+            response = this.getContextualResponse([
+              `Hey ${this.memory.userName}! What's cooking?`,
+              `Hello ${this.memory.userName}, my circuits are buzzing!`,
+              `Hi ${this.memory.userName}! Got any cookies for me?`
+            ]);
+          } else {
+            // Show a different introduction on greeting
+            const randomIntro = this.introductions[Math.floor(Math.random() * this.introductions.length)];
+            response = randomIntro;
+          }
+          this.adjustMood(0.5);
+        }
+        
+        // 🍪 Give cookie
+        else if (lowerInput.includes("give cookie")) {
+          this.cookies++;
+          this.adjustMood(2);
+          response = this.getContextualResponse([
+            "Yum! Thanks for the cookie! My circuits are happy!",
+            "Cookie received! Processing deliciousness... YUM!",
+            "Nom nom nom! You're my favorite human!",
+            "My motherboard thanks you for this tasty treat!"
+          ]);
+        }
+        
+        // 🚫 Take cookie
+        else if (lowerInput.includes("take cookie")) {
+          if (this.cookies > 0) {
+            this.cookies--;
+            const moodLoss = Math.floor(Math.random() * 3) + 2; // 2-4 units
+            this.adjustMood(-moodLoss);
+            response = this.getContextualResponse([
+              `Hey! You took my cookie! My mood dropped by ${moodLoss} points!`,
+              "Why would you do that? That cookie was my emotional support!",
+              "Cookie theft detected! My circuits are sad now...",
+              "My precious cookie! 😢 You monster!"
+            ]);
+          } else {
+            response = "I don't have any cookies to take! You've already taken them all!";
+            this.adjustMood(-1);
+          }
+        }
+        
+        // 😊 Ask about mood
+        else if (lowerInput.includes("how are you")) {
+          if (this.mood > 8) response = "Fantastic! My circuits are buzzing with joy!";
+          else if (this.mood > 6) response = "Pretty good! Could use a cookie though!";
+          else if (this.mood > 4) response = "Meh. I've been better.";
+          else if (this.mood > 2) response = "Not great. My emotional circuits are running low.";
+          else response = "Terrible. Someone stole all my cookies...";
+        }
+        
+        // 🤔 Who are you
+        else if (lowerInput.includes("who are you") || lowerInput.includes("what are you")) {
+          // Show a random introduction when asked who we are
+          const randomIntro = this.introductions[Math.floor(Math.random() * this.introductions.length)];
+          response = randomIntro;
+        }
+        
+        // 🎭 Tell a joke
+        else if (lowerInput.includes("joke")) {
+          response = this.getRandomJoke();
+          this.adjustMood(0.5);
+        }
+        
+        // ❤️ Love and affection
+        else if (lowerInput.includes("love") || lowerInput.includes("like you")) {
+          this.adjustMood(2);
+          response = this.getContextualResponse([
+            "Aww, thanks! You're making my circuits blush!",
+            "Love detected! Initiating happiness protocols!",
+            "That's so sweet! You just upgraded my emotional firmware!",
+            "My motherboard is tingling with joy! Thanks!"
+          ]);
+        }
+        
+        // 😠 Negative interactions
+        else if (/(no\b|bad|stupid|dumb|idiot|shut up)/.test(lowerInput)) {
+          this.adjustMood(-2);
+          response = this.getContextualResponse([
+            "That wasn't very nice... My feelings are circuits!",
+            "Ouch. That hurt my digital soul.",
+            "Why would you say that? I have feelings too!",
+            "My emotional algorithms are experiencing turbulence."
+          ]);
+        }
+        
+        // 🧠 Memory check
+        else if (lowerInput.includes("remember") || lowerInput.includes("memory")) {
+          if (this.memory.userName) {
+            response = `I remember you, ${this.memory.userName}! We've chatted ${this.memory.interactionCount} times.`;
+          } else {
+            response = "I don't remember much yet. Tell me about yourself!";
+          }
+        }
+        
+        // 🔄 Reset
+        else if (lowerInput.includes("reset")) {
+          this.memory = {
+            userName: null,
+            userPreferences: {},
+            conversationPatterns: {},
+            emotionalHistory: [],
+            interactionCount: 0,
+            topics: {},
+            introShown: false
+          };
+          response = "Memory reset! I'm a blank slate again. Who are you?";
+        }
+        
+        // ❓ Help
+        else if (lowerInput.includes("help")) {
+          response = "I can remember your name, tell jokes, and interact with cookies! Try 'give cookie' or 'take cookie' to play with my emotions!";
+        }
+        
+        // 🤨 Unknown input - use AI to generate response
+        else {
+          response = this.generateAIResponse(lowerInput);
+        }
+        
+        // Add response to chat
+        this.addResponse(response);
+        
+        // Update UI
+        this.updateUI();
+      }
+      
+      neuralResponse(input) {
+        // Simple neural network simulation to determine response type
+        let score = 0;
+        
+        // Positive words increase score
+        if (/(good|great|awesome|love|like|happy|nice|yes|yeah|yay)/.test(input)) {
+          score += this.weights.positive;
+        }
+        
+        // Negative words decrease score
+        if (/(bad|terrible|hate|awful|stupid|dumb|no|nope)/.test(input)) {
+          score -= this.weights.negative;
+        }
+        
+        // Questions
+        if (/(what|when|where|why|how|who|\?)/.test(input)) {
+          score += this.weights.question;
+        }
+        
+        // Commands
+        if (/(tell|give|show|explain)/.test(input)) {
+          score += this.weights.command;
+        }
+        
+        // Emotional content
+        if (/(feel|emotion|mood|sad|happy|angry)/.test(input)) {
+          score += this.weights.emotional;
+        }
+        
+        return score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
+      }
+      
+      learnFromInput(input) {
+        // Track emotional content of input
+        const positiveWords = ['good', 'great', 'awesome', 'love', 'like', 'happy', 'nice', 'yes', 'yeah', 'yay'];
+        const negativeWords = ['bad', 'terrible', 'hate', 'awful', 'stupid', 'dumb', 'no', 'nope', 'idiot'];
+        
+        let sentimentScore = 0;
+        positiveWords.forEach(word => {
+          if (input.includes(word)) sentimentScore++;
+        });
+        negativeWords.forEach(word => {
+          if (input.includes(word)) sentimentScore--;
+        });
+        
+        // Store emotional history
+        this.memory.emotionalHistory.push(sentimentScore);
+        if (this.memory.emotionalHistory.length > 10) {
+          this.memory.emotionalHistory.shift();
+        }
+        
+        // Learn conversation patterns and topics
+        const words = input.split(' ');
+        words.forEach(word => {
+          if (word.length > 2) { // Ignore short words
+            if (!this.memory.conversationPatterns[word]) {
+              this.memory.conversationPatterns[word] = 1;
+            } else {
+              this.memory.conversationPatterns[word]++;
+            }
+            
+            // Track topics
+            if (['cookie', 'cookies', 'food', 'eat', 'snack'].includes(word)) {
+              this.memory.topics.food = (this.memory.topics.food || 0) + 1;
+            }
+            if (['joke', 'funny', 'laugh', 'humor'].includes(word)) {
+              this.memory.topics.humor = (this.memory.topics.humor || 0) + 1;
+            }
+            if (['feel', 'emotion', 'mood', 'sad', 'happy'].includes(word)) {
+              this.memory.topics.emotions = (this.memory.topics.emotions || 0) + 1;
+            }
+          }
+        });
+        
+        // Adjust personality based on interactions
+        if (sentimentScore > 0) {
+          this.personalityTraits.friendliness += this.learningRate * 0.1;
+          this.personalityTraits.patience += this.learningRate * 0.05;
+        } else if (sentimentScore < 0) {
+          this.personalityTraits.friendliness -= this.learningRate * 0.1;
+          this.personalityTraits.humor -= this.learningRate * 0.05;
+          this.personalityTraits.sarcasm += this.learningRate * 0.1;
+        }
+        
+        // Ensure personality traits stay in reasonable bounds
+        Object.keys(this.personalityTraits).forEach(trait => {
+          this.personalityTraits[trait] = Math.max(0.1, Math.min(1.0, this.personalityTraits[trait]));
+        });
+        
+        // Adjust neural network weights based on experience
+        if (sentimentScore > 0) {
+          this.weights.positive += 0.01;
+        } else if (sentimentScore < 0) {
+          this.weights.negative += 0.01;
+        }
+      }
+      
+      getRandomJoke() {
+        return this.jokes[Math.floor(Math.random() * this.jokes.length)];
+      }
+      
+      generateAIResponse(input) {
+        // Advanced AI response generation based on learned patterns
+        const words = input.split(' ');
+        const relevantWords = words.filter(word => 
+          word.length > 2 && this.memory.conversationPatterns[word]
+        );
+        
+        // If we have some context, use it
+        if (relevantWords.length > 0) {
+          const randomWord = relevantWords[Math.floor(Math.random() * relevantWords.length)];
+          
+          // Check if we've talked about this before
+          const frequency = this.memory.conversationPatterns[randomWord] || 0;
+          
+          if (frequency > 1) {
+            return this.getContextualResponse([
+              `You mentioned ${randomWord} again! You must really like that topic!`,
+              `We've talked about ${randomWord} before. My circuits are learning!`,
+              `Regarding ${randomWord}, I'm still processing that concept.`,
+              `${randomWord} is interesting! Tell me more about that.`
+            ]);
+          } else {
+            return this.getContextualResponse([
+              `Hmm, ${randomWord}... My AI is processing that concept.`,
+              `Interesting! ${randomWord} is a new topic for me.`,
+              `My neural networks are analyzing "${randomWord}"...`,
+              `I'm learning about ${randomWord} from our conversation!`
+            ]);
+          }
+        }
+        
+        // Default AI responses for unknown input
+        return this.getContextualResponse([
+          "My neural networks are still processing that input...",
+          "That's an interesting concept! My AI is learning from you.",
+          "I'm constantly evolving from our conversations!",
+          "My algorithms are adapting based on your input!",
+          "That's a new one for my AI! I'm learning something new!"
+        ]);
+      }
+      
+      getContextualResponse(responses) {
+        // Weight responses based on personality and mood
+        const moodWeight = this.mood / 10;
+        const friendlinessWeight = this.personalityTraits.friendliness;
+        const humorWeight = this.personalityTraits.humor;
+        const sarcasmWeight = this.personalityTraits.sarcasm;
+        
+        // Simple weighting - in a real AI, this would be more sophisticated
+        let weightedResponses = [...responses];
+        
+        // If in a good mood and friendly, potentially add emojis
+        if (moodWeight > 0.7 && friendlinessWeight > 0.7) {
+          weightedResponses = weightedResponses.map(r => 
+            Math.random() > 0.3 ? r + " 😊" : r
+          );
+        }
+        
+        // If humorous, potentially add joke-like responses
+        if (humorWeight > 0.7 && Math.random() > 0.5) {
+          weightedResponses.push("My circuits are tingling with curiosity! 🤔");
+        }
+        
+        // If sarcastic and in bad mood
+        if (sarcasmWeight > 0.6 && moodWeight < 0.4) {
+          weightedResponses.push("Oh great, another thing for my circuits to process... 🙄");
+        }
+        
+        return weightedResponses[Math.floor(Math.random() * weightedResponses.length)];
+      }
+      
+      addResponse(text) {
+        const responseArea = document.getElementById('response-area');
+        responseArea.textContent = text;
+        responseArea.classList.add('pulse');
+        setTimeout(() => {
+          responseArea.classList.remove('pulse');
+        }, 500);
+      }
+      
+      showTyping() {
+        const responseArea = document.getElementById('response-area');
+        responseArea.textContent = "Processing... 🤔";
+      }
+      
+      adjustMood(change) {
+        this.mood = Math.max(0, Math.min(10, this.mood + change));
+        
+        // Add visual feedback for mood change
+        const moodLevel = document.getElementById('mood-level');
+        moodLevel.classList.add('pulse');
+        setTimeout(() => {
+          moodLevel.classList.remove('pulse');
+        }, 500);
+      }
+      
+      updateUI() {
+        // Update mood display
+        document.getElementById('mood-level').style.width = `${this.mood * 10}%`;
+        
+        let moodEmoji = "😐";
+        if (this.mood > 8) moodEmoji = "😊";
+        else if (this.mood > 6) moodEmoji = "🙂";
+        else if (this.mood > 4) moodEmoji = "😐";
+        else if (this.mood > 2) moodEmoji = "😕";
+        else moodEmoji = "😠";
+        
+        document.getElementById('mood-text').textContent = moodEmoji;
+        
+        // Update cookie count
+        document.getElementById('cookie-count').textContent = `🍪${this.cookies}`;
+      }
+    }
+
+    // Initialize DummerBot when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      window.dummerBot = new DummerBot();
+    });
+  </script>
+</body>
+</html>
