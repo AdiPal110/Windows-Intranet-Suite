@@ -11,7 +11,7 @@ Comics	Komga
 Music	Navidrome
 Language Translation	LibreTranslate
 VoIP Calling/Texting	MiniSIPServer + Linphone
-File Sharing	Python Local File Server / Samba
+File Sharing	Python Local File Server / Samba /Syncthing
 AI Chatbot (ChatGPT)	Ollama + Qwen + Msty UI
 Voice Chat (VOIP)	Mumble
 Remote Access	Sunshine + Moonlight
@@ -120,7 +120,7 @@ Linphone (Client): https://www.linphone.org
 10. 💾 File Sharing (FTP/HTTP)
 What is it? Share files over LAN using a simple server.
 
-Script: local_file_server.py
+Script: local_file_server.py/Samba  OR you can use syncthing as it does not need centeral server
 
 Access from browser: http://your-ip:5050
 
@@ -160,4 +160,5 @@ If you are using my Python scrypty, change its icon path in the .py file to wher
 All services work fully offline after setup.
 
 RAM usage is lightweight (~6.9 GB), works fine on 8 GB systems.
+
 
